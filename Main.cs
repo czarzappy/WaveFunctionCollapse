@@ -7,55 +7,73 @@ The software is provided "as is", without warranty of any kind, express or impli
 */
 
 using System;
-using System.Xml.Linq;
 using System.Diagnostics;
+using System.Xml.Linq;
+using WaveFunctionCollapse.Configs;
+using WaveFunctionCollapse.Extensions;
+using WaveFunctionCollapse.Factories;
+using WaveFunctionCollapse.Sim;
 
-static class Program
+namespace WaveFunctionCollapse
 {
-    static void Main()
+    public static class Program
     {
-        Stopwatch sw = Stopwatch.StartNew();
-
-        Random random = new Random();
-        XDocument xdoc = XDocument.Load("samples.xml");
-
-        int counter = 1;
-        foreach (XElement xelem in xdoc.Root.Elements("overlapping", "simpletiled"))
+        public static void Main(string[] args)
         {
-            Model model;
-            string name = xelem.Get<string>("name");
-            Console.WriteLine($"< {name}");
+            Stopwatch sw = Stopwatch.StartNew();
 
-            if (xelem.Name == "overlapping") model = new OverlappingModel(name, xelem.Get("N", 2), xelem.Get("width", 48), xelem.Get("height", 48),
-                xelem.Get("periodicInput", true), xelem.Get("periodic", false), xelem.Get("symmetry", 8), xelem.Get("ground", 0));
-            else if (xelem.Name == "simpletiled") model = new SimpleTiledModel(name, xelem.Get<string>("subset"),
-                xelem.Get("width", 10), xelem.Get("height", 10), xelem.Get("periodic", false), xelem.Get("black", false));
-            else continue;
+            Random random = new Random();
+            XDocument xdoc = XDocument.Load(args[0]);
 
-            for (int i = 0; i < xelem.Get("screenshots", 2); i++)
+            int counter = 1;
+            foreach (XElement xelem in xdoc.Root.Elements("overlapping", "simpletiled"))
             {
-                for (int k = 0; k < 10; k++)
+                Model model;
+                string name = xelem.Get<string>("name");
+                Console.WriteLine($"< {name}");
+
+                switch (xelem.Name.ToString())
                 {
-                    Console.Write("> ");
-                    int seed = random.Next();
-                    bool finished = model.Run(seed, xelem.Get("limit", 0));
-                    if (finished)
-                    {
-                        Console.WriteLine("DONE");
-
-                        model.Graphics().Save($"{counter} {name} {i}.png");
-                        if (model is SimpleTiledModel && xelem.Get("textOutput", false))
-                            System.IO.File.WriteAllText($"{counter} {name} {i}.txt", (model as SimpleTiledModel).TextOutput());
-
+                    case "simpletiled":
+                        var config = SimpleTiledConfigFactory.FromXmlNode(xelem);
+                        model = new SimpleTiledModel(config);
                         break;
-                    }
-                    else Console.WriteLine("CONTRADICTION");
+                    // case 
+                        // var config = OverlappingConfigFactory.FromXmlNode(xelem);
+                        // model = new OverlappingModel(config);
+                    default:
+                        continue;
                 }
+
+                for (int screenshotId = 0; screenshotId < xelem.Get("screenshots", 2); screenshotId++)
+                {
+                    for (int k = 0; k < 10; k++)
+                    {
+                        Console.Write("> ");
+                        int seed = random.Next();
+                        bool finished = model.Run(seed, xelem.Get("limit", 0));
+                        if (finished)
+                        {
+                            Console.WriteLine("DONE");
+
+                            model.Graphics().Save($"{counter} {name} {screenshotId}.png");
+                            var tiledModel = model as SimpleTiledModel;
+                            if (tiledModel != null && xelem.Get("textOutput", false))
+                            {
+                                System.IO.File.WriteAllText($"{counter} {name} {screenshotId}.txt", tiledModel.TextOutput());
+                            }
+
+                            break;
+                        }
+
+                        Console.WriteLine("CONTRADICTION");
+                    }
+                }
+
+                counter++;
             }
 
-            counter++;
+            Console.WriteLine($"time = {sw.ElapsedMilliseconds}");
         }
-
-        Console.WriteLine($"time = {sw.ElapsedMilliseconds}");
     }
 }

@@ -1,12 +1,12 @@
 <set size="32">
 	<tiles>
-		<tile name="b_half" symmetry="T"/>
+		<tile name="b_half" symmetry="T" weight="10"/>
 		<tile name="b_i" symmetry="I"/>
-		<tile name="b_quarter" symmetry="L"/>
-		<tile name="w_half" symmetry="T"/>
+		<tile name="b_quarter" symmetry="L" weight="100"/>
+		<tile name="w_half" symmetry="T" weight="250"/>
 		<tile name="w_i" symmetry="I"/>
-		<tile name="w_quarter" symmetry="L"/>
-		<tile name="b" symmetry="X"/>
+		<tile name="w_quarter" symmetry="L" weight="10"/>
+		<tile name="b" symmetry="X" weight="1000"/>
 		<tile name="w" symmetry="X"/>
 	</tiles>
 	<neighbors>
@@ -15,6 +15,7 @@
 		<neighbor left="b_half 3" right="b_half 1"/>
 		<neighbor left="b_half" right="b_half 3"/>
 		<neighbor left="b_half" right="b_half 2"/>
+		
 		<neighbor left="b_half" right="b_i"/>
 		<neighbor left="b_half 3" right="b_i 3"/>
 		<neighbor left="b_half 1" right="b_i"/>

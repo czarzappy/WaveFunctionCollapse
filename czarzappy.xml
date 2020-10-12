@@ -1,0 +1,6 @@
+<samples>
+  <simpletiled name="Circles" width="24" height="24" screenshots="1"/>
+<!--  <simpletiled name="Circles" subset="Large Circles" width="24" height="24" screenshots="1" textOutput="true"/>-->
+<!--  <simpletiled name="Circles" subset="Large Circles and Solid" width="24" height="24" screenshots="1" textOutput="true"/>-->
+<!--  <simpletiled name="Circles" subset="No Solid" width="24" height="24" screenshots="1" textOutput="true"/>-->
+</samples>
